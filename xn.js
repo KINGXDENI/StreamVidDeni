@@ -55,7 +55,9 @@ function xnxx() {
                 $(b).find('div.thumb-under').each((c, d) => {
                     views.push($(d).find('p.metadata > span.right').text().replace(/\n/, "").split(" ")[0]);
                     rate.push($(d).find("p.metadata > span.video-hd").text().replace(/ /gi, "").split("-")[1]);
-                    duration.push($(d).find("p.metadata").text().replace(/(\n| )/gi, "").split("%")[1].split("-")[0]);
+                    const metadataText = $(d).find("p.metadata").text();
+                    const durationMatch = metadataText.match(/(\d+min)/);
+                    duration.push(durationMatch ? durationMatch[1] : "Unknown");
                     $(d).find('a').each((e, f) => {
                         title.push($(f).attr('title'));
                     });
