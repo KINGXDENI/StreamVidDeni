@@ -42,9 +42,9 @@ export async function GET(request) {
                 id: (i + 1).toString(),
                 title: title[i],
                 channel: {
-                    name: "Unknown Channel",
+                    name: "Channel",
                     url: "https://www.xnxx.com",
-                    logo: "",
+                    logo: "https://i.ytimg.com/vi/cHkN82X3KNU/maxresdefault.jpg",
                 },
                 views: views[i],
                 postedAt: "Unknown",
