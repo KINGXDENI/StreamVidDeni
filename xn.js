@@ -1,81 +1,82 @@
 const fs = require('fs');
 const axios = require('axios');
 const cheerio = require('cheerio');
+// const {
+//     HttpsProxyAgent
+// } = require('https-proxy-agent');
 
-// Fungsi untuk memilih proxy secara acak dari daftar
-function getRandomProxy() {
-    const proxies = fs.readFileSync('proxies.txt', 'utf8').split('\n').map(proxy => proxy.trim());
-    const randomIndex = Math.floor(Math.random() * proxies.length);
-    const [host, port, username, password] = proxies[randomIndex].split(':');
-    return {
-        host: host,
-        port: parseInt(port, 10),
-        auth: {
-            username: username,
-            password: password
-        }
-    };
-}
+// // Fungsi untuk memilih proxy secara acak dari daftar
+// function getRandomProxy() {
+//     const proxies = fs.readFileSync('proxies.txt', 'utf8').split('\n').map(proxy => proxy.trim());
+//     const randomIndex = Math.floor(Math.random() * proxies.length);
+//     const [host, port, username, password] = proxies[randomIndex].split(':');
+//     return `http://${username}:${password}@${host}:${port}`;
+// }
 
-async function xnxx() {
-    const baseurl = 'https://www.xnxx.com/todays-selection';
+function xnxx() {
+    return new Promise(async (resolve, reject) => {
+        const baseurl = 'https://www.xnxx.com/todays-selection';
 
-    // Pilih proxy secara acak
-    const proxy = getRandomProxy();
+        // // Pilih proxy secara acak
+        // const proxyUrl = getRandomProxy();
+        // const agent = new HttpsProxyAgent(proxyUrl);
 
-    const axiosConfig = {
-        proxy: proxy, // Konfigurasi proxy
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-        },
-        timeout: 10000 // Atur batas waktu (10 detik)
-    };
+        // const axiosConfig = {
+        //     httpsAgent: agent,
+        //     headers: {
+        //         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        //     },
+        //     timeout: 10000 // Atur batas waktu (10 detik)
+        // };
 
-    try {
-        const {
-            data
-        } = await axios.get(baseurl, axiosConfig);
-        const $ = cheerio.load(data);
-        const title = [];
-        const url = [];
-        const views = [];
-        const thumb = [];
-        const rate = [];
-        const duration = [];
-        const results = [];
-
-        $('div.mozaique').each((a, b) => {
-            $(b).find('div.thumb').each((c, d) => {
-                url.push(baseurl + $(d).find('a').attr('href').replace("/THUMBNUM/", "/"));
-                thumb.push($(d).find("img").attr("data-src"));
+        try {
+            const {
+                data
+            } = await axios.get(`${baseurl}`);
+            let $ = cheerio.load(data, {
+                xmlMode: false
             });
-        });
+            let title = [];
+            let url = [];
+            let views = [];
+            let thumb = [];
+            let rate = [];
+            let duration = [];
+            let results = [];
 
-        $('div.mozaique').each((a, b) => {
-            $(b).find('div.thumb-under').each((c, d) => {
-                views.push($(d).find('p.metadata > span.right').text().replace(/\n/, "").split(" ")[0]);
-                rate.push($(d).find("p.metadata > span.video-hd").text().replace(/ /gi, "").split("-")[1]);
-                duration.push($(d).find("p.metadata").text().replace(/(\n| )/gi, "").split("%")[1].split("-")[0]);
-                $(d).find('a').each((e, f) => {
-                    title.push($(f).attr('title'));
+            $('div.mozaique').each((a, b) => {
+                $(b).find('div.thumb').each((c, d) => {
+                    url.push(baseurl + $(d).find('a').attr('href').replace("/THUMBNUM/", "/"));
+                    thumb.push($(d).find("img").attr("data-src"));
                 });
             });
-        });
 
-        for (let i = 0; i < title.length; i++) {
-            results.push({
-                title: title[i],
-                views: views[i],
-                quality: rate[i],
-                duration: duration[i],
-                thumb: thumb[i],
-                link: url[i]
+            $('div.mozaique').each((a, b) => {
+                $(b).find('div.thumb-under').each((c, d) => {
+                    views.push($(d).find('p.metadata > span.right').text().replace(/\n/, "").split(" ")[0]);
+                    rate.push($(d).find("p.metadata > span.video-hd").text().replace(/ /gi, "").split("-")[1]);
+                    duration.push($(d).find("p.metadata").text().replace(/(\n| )/gi, "").split("%")[1].split("-")[0]);
+                    $(d).find('a').each((e, f) => {
+                        title.push($(f).attr('title'));
+                    });
+                });
             });
+
+            for (let i = 0; i < title.length; i++) {
+                results.push({
+                    title: title[i],
+                    views: views[i],
+                    quality: rate[i],
+                    duration: duration[i],
+                    thumb: thumb[i],
+                    link: url[i]
+                });
+            }
+            resolve(results);
+        } catch (err) {
+            reject(err);
         }
-        return results;
-    } catch (err) {
-        throw new Error(err.message);
-    }
+    });
 }
 function xnxxsearch(query) {
     return new Promise(async (resolve, reject) => {
