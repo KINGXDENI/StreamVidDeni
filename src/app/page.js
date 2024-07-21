@@ -1,13 +1,16 @@
-"use client"
+"use client";
 import { useEffect, useState } from "react";
 import CategoryPill from "./components/CategoryPill";
 import Navbar from "./components/Navbar";
 import Sidebar from "./components/Sidebar";
 import VideoItem from "./components/VideoItem";
-import { categories, videos } from "./constants";
+import { categories } from "./constants"; // Removed import of videos
 
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [videos, setVideos] = useState([]); // State to hold fetched videos
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -16,6 +19,28 @@ export default function Home() {
   useEffect(() => {
     if (window.innerWidth >= 768) setIsSidebarOpen(true);
   }, []);
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const response = await fetch('/api/xnxx'); // Adjust API endpoint if necessary
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setVideos(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVideos();
+  }, []);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
     <div className="max-h-screen flex flex-col overflow-hidden dark:bg-neutral-900">

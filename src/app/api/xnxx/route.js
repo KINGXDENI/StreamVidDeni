@@ -1,27 +1,10 @@
 import fs from 'fs';
 import axios from 'axios';
 import cheerio from 'cheerio';
-// import HttpsProxyAgent from 'http-proxy-agent'; // Use http-proxy-agent as alternative
 
-// const getRandomProxy = () => {
-//     const proxies = fs.readFileSync('proxies.txt', 'utf8').split('\n').map(proxy => proxy.trim());
-//     const randomIndex = Math.floor(Math.random() * proxies.length);
-//     const [host, port, username, password] = proxies[randomIndex].split(':');
-//     return `http://${username}:${password}@${host}:${port}`;
-// };
 
 export async function GET(request) {
     const baseurl = 'https://www.xnxx.com/todays-selection';
-    // const proxyUrl = getRandomProxy();
-    // const agent = new HttpsProxyAgent(proxyUrl); // Ensure correct usage
-
-    // const axiosConfig = {
-    //     httpsAgent: agent,
-    //     headers: {
-    //         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-    //     },
-    //     timeout: 10000
-    // };
 
     try {
         const {
